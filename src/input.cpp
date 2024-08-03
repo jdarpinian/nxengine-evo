@@ -8,6 +8,8 @@
 #include "settings.h"
 #include "sound/SoundManager.h"
 
+#include <SDL.h>
+#include <SDL_gamecontroller.h>
 #include <array>
 
 in_action mappings[INPUT_COUNT];
@@ -48,6 +50,27 @@ bool input_init(void)
   mappings[MAPSYSTEMKEY].key = SDLK_w;
 
   mappings[ESCKEY].key = SDLK_ESCAPE;
+
+  // mappings[LEFTKEY].jaxis  = 0;
+  // mappings[RIGHTKEY].jaxis = 1;
+  // mappings[UPKEY].jaxis    = 2;
+  // mappings[DOWNKEY].jaxis  = 3;
+  // mappings[FIREKEY].jaxis  = 4;
+  // mappings[STRAFEKEY].jaxis  = 5;
+
+  mappings[LEFTKEY].jbut = 14;
+  mappings[RIGHTKEY].jbut = 15;
+  mappings[UPKEY].jbut = 12;
+  mappings[DOWNKEY].jbut = 13;
+  mappings[JUMPKEY].jbut = 0;
+  mappings[FIREKEY].jbut = 1;
+  mappings[STRAFEKEY].jbut = 5;
+  mappings[PREVWPNKEY].jbut = 1;
+  mappings[NEXTWPNKEY].jbut = 3;
+  mappings[INVENTORYKEY].jbut = 8;
+  mappings[MAPSYSTEMKEY].jbut = 9;
+  mappings[ESCKEY].jbut = 16;
+
 
 #if defined(__VITA__)
   mappings[MAPSYSTEMKEY].jbut = 0; // Triangle
@@ -94,12 +117,14 @@ bool input_init(void)
   mappings[F10KEY].key = SDLK_F10;
   mappings[F11KEY].key = SDLK_F11;
   mappings[F12KEY].key = SDLK_F12;
-  mappings[FREEZE_FRAME_KEY].key  = SDLK_SPACE;
-  mappings[FRAME_ADVANCE_KEY].key = SDLK_b;
-  mappings[DEBUG_FLY_KEY].key     = SDLK_v;
+  // mappings[FREEZE_FRAME_KEY].key  = SDLK_SPACE;
+  // mappings[FRAME_ADVANCE_KEY].key = SDLK_b;
+  // mappings[DEBUG_FLY_KEY].key     = SDLK_v;
   mappings[ENTERKEY].key = SDLK_RETURN;
 
+  SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER);
   SDL_InitSubSystem(SDL_INIT_JOYSTICK);
+
   if (SDL_NumJoysticks() > 0)
   {
     // Open joystick

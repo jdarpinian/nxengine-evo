@@ -80,7 +80,7 @@ bool settings_load(Settings *setfile)
 #if defined(__VITA__) || defined(__SWITCH__)
     setfile->resolution     = 1;
 #else
-    setfile->resolution     = 2; // 640x480 Windowed, should be safe value
+    setfile->resolution     = 15; // 1080p widescreen
 #endif
     setfile->last_save_slot = 0;
     setfile->fullscreen     = false;
@@ -95,6 +95,7 @@ bool settings_load(Settings *setfile)
     setfile->animated_facepics = true;
     setfile->lights = false;
     setfile->control_scheme = false;
+    setfile->strafing = true;
     memset(setfile->language, 0, 256);
     strncpy(setfile->language, "english", 255);
 

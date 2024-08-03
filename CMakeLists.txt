@@ -1,9 +1,16 @@
 cmake_minimum_required(VERSION 3.0)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
-set(PLATFORM "pc" CACHE STRING "Platform to build for")
-set_property(CACHE PLATFORM PROPERTY STRINGS pc vita switch)
+# if (EMSCRIPTEN)
+    # set(PLATFORM "emscripten" CACHE STRING "Platform to build for")
+    # set_property(CACHE PLATFORM PROPERTY STRINGS emscripten pc vita switch)
+#     message(STATUS "Building for Emscripten")
+# else()
+    set(PLATFORM "pc" CACHE STRING "Platform to build for")
+#     set_property(CACHE PLATFORM PROPERTY STRINGS pc vita switch emscripten)
+#     message("Building for not Emscripten")
+# endif()
 
 set(UNIX_LIKE OFF)
 IF(UNIX AND NOT APPLE AND NOT ANDROID)
@@ -39,7 +46,7 @@ ELSE()
     message(FATAL_ERROR "Wrong platform")
 ENDIF()
 
-project(nx CXX)
+project(nx CXX C)
 
 set (nx_VERSION_MAJOR 2)
 set (nx_VERSION_MINOR 6)
@@ -54,15 +61,24 @@ find_package(SDL2 CONFIG REQUIRED)
 ELSE()
 find_package(SDL2 REQUIRED)
 ENDIF()
-find_package(SDL2_mixer REQUIRED)
-find_package(SDL2_image REQUIRED)
-find_package(PNG REQUIRED)
-find_package(JPEG REQUIRED)
+
+# IF(PLATFORM STREQUAL "emscripten")
+    add_compile_options(-sUSE_SDL=2 -sUSE_SDL_MIXER=2 -sUSE_SDL_IMAGE=2 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1 "-sSDL2_IMAGE_FORMATS=[png]")
+    add_link_options(-sUSE_SDL=2 -sUSE_SDL_MIXER=2 -sUSE_SDL_IMAGE=2 -sUSE_LIBPNG=1 -sUSE_LIBJPEG=1 "-sSDL2_IMAGE_FORMATS=[png]")
+    add_link_options(-s EXPORTED_RUNTIME_METHODS=FS,AL,IDBFS,addRunDependency,removeRunDependency -lidbfs.js -sEXPORT_ES6 -sEXPORT_NAME=nxengine -sTOTAL_MEMORY=512mb -sSTACK_SIZE=5MB -sASYNCIFY)
+# ELSE()
+#     find_package(SDL2_mixer REQUIRED)
+#     find_package(SDL2_image REQUIRED)
+#     find_package(PNG REQUIRED)
+#     find_package(JPEG REQUIRED)
+# ENDIF()
+
+
 
 include_directories(${SDL2_INCLUDE_DIR})
-include_directories(${SDL2_MIXER_INCLUDE_DIR})
-include_directories(${SDL2_IMAGE_INCLUDE_DIR})
-include_directories(${PNG_PNG_INCLUDE_DIR})
+# include_directories(${SDL2_MIXER_INCLUDE_DIR})
+# include_directories(${SDL2_IMAGE_INCLUDE_DIR})
+# include_directories(${PNG_PNG_INCLUDE_DIR})
 include_directories("${nx_SOURCE_DIR}/deps")
 
 file(GLOB APP_SOURCES "src/[a-zA-Z]*.cpp")
@@ -84,6 +100,7 @@ set(EXTR_SOURCES
     "src/common/misc.cpp"
     "src/Utils/Logger.cpp"
     "src/stagedata.cpp"
+    "deps/miniz.c"
 )
 
 include_directories(${nx_SOURCE_DIR})
@@ -102,6 +119,7 @@ set(SOURCES
     ${SN_SOURCES}
     ${I18N_SOURCES}
     ${UT_SOURCES}
+    ${EXTR_SOURCES}
 )
 
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
@@ -116,7 +134,6 @@ add_executable(nx ${SOURCES})
 
 IF(PLATFORM STREQUAL "pc")
     set_property(TARGET nx PROPERTY OUTPUT_NAME nxengine-evo)
-    add_definitions("-std=c++11")
     IF(UNIX_LIKE)
         add_definitions(-DHAVE_UNIX_LIKE)
 
@@ -197,18 +214,18 @@ ELSEIF(PLATFORM STREQUAL "switch")
     add_custom_target(nxbinnro_ ALL DEPENDS ${CMAKE_SOURCE_DIR}/release/NXEngine-Evo-${nx_VERSION_MAJOR}.${nx_VERSION_MINOR}.${nx_VERSION_RELEASE}.nro)
 ENDIF()
 
-IF(PLATFORM STREQUAL "pc")
-    add_executable(extract ${EXTR_SOURCES})
-    target_link_libraries(extract ${SDL2_LIBRARY})
-    set_property(TARGET extract PROPERTY OUTPUT_NAME nxextract)
+# IF(PLATFORM STREQUAL "pc")
+#     add_executable(extract ${EXTR_SOURCES})
+#     target_link_libraries(extract ${SDL2_LIBRARY})
+#     set_property(TARGET extract PROPERTY OUTPUT_NAME nxextract)
 
-    install(TARGETS nx extract RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-    install(DIRECTORY data DESTINATION ${CMAKE_INSTALL_DATADIR}/nxengine)
+#     install(TARGETS nx extract RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+#     install(DIRECTORY data DESTINATION ${CMAKE_INSTALL_DATADIR}/nxengine)
 
-    # Install XDG metadata on Desktop Linux like platforms
-    IF(UNIX_LIKE)
-        install(FILES platform/xdg/${nx_APP_ID}.desktop     DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
-        install(FILES platform/xdg/${nx_APP_ID}.png         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/256x256/apps)
-        install(FILES platform/xdg/${nx_APP_ID}.appdata.xml DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/metainfo)
-    ENDIF()
-ENDIF()
+#     # Install XDG metadata on Desktop Linux like platforms
+#     IF(UNIX_LIKE)
+#         install(FILES platform/xdg/${nx_APP_ID}.desktop     DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
+#         install(FILES platform/xdg/${nx_APP_ID}.png         DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/256x256/apps)
+#         install(FILES platform/xdg/${nx_APP_ID}.appdata.xml DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/metainfo)
+#     ENDIF()
+# ENDIF()

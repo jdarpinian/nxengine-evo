@@ -32,6 +32,22 @@ using namespace NXE::Graphics;
 #include "Utils/Logger.h"
 using namespace NXE::Utils;
 
+#include "extract/extractfiles.h"
+#include "extract/extractpxt.h"
+#include "extract/extractstages.h"
+
+#include "miniz.h"
+
+#ifdef EMSCRIPTEN
+#include <emscripten.h>
+EM_ASYNC_JS(void, next_frame, (), {
+  await new Promise(r => requestAnimationFrame(r));
+});
+#define SDL_Delay(x) next_frame()
+#endif
+
+
+
 #if defined(__SWITCH__)
 #include <switch.h>
 #include <iostream>
@@ -274,8 +290,86 @@ void InitNewGame(bool with_intro)
   fade.set_full(FADE_OUT);
 }
 
+static void mkdirp(const char *dir)
+{
+  char *path = strdup(dir);
+  char *p    = path;
+  while (*p)
+  {
+    if (*p == '/')
+    {
+      *p = '\0';
+      mkdir(path, 0755);
+      *p = '/';
+    }
+    p++;
+  }
+  free(path);
+}
+
 int main(int argc, char *argv[])
 {
+  const char *zip_filename = "doukutsu.zip";
+
+  // Open the ZIP archive
+  mz_zip_archive zip_archive;
+  memset(&zip_archive, 0, sizeof(zip_archive));
+  if (!mz_zip_reader_init_file(&zip_archive, zip_filename, 0))
+  {
+    LOG_CRITICAL("Failed to open ZIP archive: {}", zip_filename);
+    return 1;
+  }
+
+  // Extract all files in the ZIP archive
+  int num_files = (int)mz_zip_reader_get_num_files(&zip_archive);
+  for (int i = 0; i < num_files; ++i)
+  {
+    mz_zip_archive_file_stat file_stat;
+    if (!mz_zip_reader_file_stat(&zip_archive, i, &file_stat))
+    {
+      LOG_CRITICAL("Failed to get file stat for file index: {}", i);
+      mz_zip_reader_end(&zip_archive);
+      return 1;
+    }
+    if (file_stat.m_is_directory) continue;
+
+    mkdirp(file_stat.m_filename);
+
+    // Extract the file
+    if (!mz_zip_reader_extract_to_file(&zip_archive, i, file_stat.m_filename, 0))
+    {
+      LOG_CRITICAL("Failed to extract file: {}", file_stat.m_filename);
+      mz_zip_reader_end(&zip_archive);
+      return 1;
+    }
+
+    LOG_DEBUG("Extracted file: {}", file_stat.m_filename);
+  }
+
+  // Close the ZIP archive
+  mz_zip_reader_end(&zip_archive);
+  LOG_INFO("Successfully extracted all files from {}", zip_filename);
+
+  chdir("doukutsu");
+
+  FILE *fp;
+
+  fp = fopen("Doukutsu.exe", "rb");
+  if (!fp)
+  {
+    printf("Can't open Doukutsu.exe!\n");
+    return 1;
+  }
+
+  if (extract_pxt(fp))
+    return 1;
+  if (extract_files(fp))
+    return 1;
+  if (extract_stages(fp))
+    return 1;
+  fclose(fp);
+  printf("Sucessfully extracted.\n");
+
   bool error            = false;
   bool freshstart;
 
@@ -301,7 +395,7 @@ int main(int argc, char *argv[])
 
   (void)ResourceManager::getInstance();
 
-  Logger::init(ResourceManager::getInstance()->getPrefPath("debug.log"));
+  Logger::init(ResourceManager::getInstance()->getBasePath() + "/debug.log");
 //  SDL_LogSetAllPriority(SDL_LOG_PRIORITY_VERBOSE);
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
   {

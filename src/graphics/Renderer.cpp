@@ -71,6 +71,8 @@ bool Renderer::initVideo()
 
   const NXE::Graphics::gres_t *res = getResolutions(true);
 
+  LOG_WARN("Resolution: {}", _current_res);
+
   uint32_t width  = res[_current_res].width;
   uint32_t height = res[_current_res].height;
   scale        = res[_current_res].scale;
@@ -85,7 +87,7 @@ bool Renderer::initVideo()
   }
 
   LOG_DEBUG("SDL_CreateWindow: {}x{}", width, height);
-  _window = SDL_CreateWindow(NXVERSION, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, window_flags);
+  _window = SDL_CreateWindow("Cave Story", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, window_flags);
 
   if (!_window)
   {
