@@ -680,7 +680,7 @@ bool game_save(int num)
 {
   Profile p;
 
-  LOG_DEBUG("game_save: writing savefile {}", num);
+  LOG_INFO("game_save: writing savefile {}", num);
 
   if (game_save(&p))
     return 1;
