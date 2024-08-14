@@ -30,7 +30,7 @@ struct Settings
   char language[256];
 };
 
-bool settings_load(Settings *settings = NULL);
+void settings_load(Settings *settings = NULL);
 bool settings_save(Settings *settings = NULL);
 
 extern Settings *settings;

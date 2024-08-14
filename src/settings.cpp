@@ -67,7 +67,7 @@ static bool tryload(Settings *setfile)
   return 0;
 }
 
-bool settings_load(Settings *setfile)
+void settings_load(Settings *setfile)
 {
   if (!setfile)
     setfile = &normal_settings;
@@ -94,12 +94,10 @@ bool settings_load(Settings *setfile)
     setfile->music_interpolation = 0;
     setfile->animated_facepics = true;
     setfile->lights = false;
-    setfile->control_scheme = false;
+    setfile->control_scheme = true;
     setfile->strafing = true;
     memset(setfile->language, 0, 256);
     strncpy(setfile->language, "english", 255);
-
-    return 1;
   }
   else
   {
@@ -116,8 +114,6 @@ bool settings_load(Settings *setfile)
     ACCEPT_BUTTON = JUMPKEY;
     DECLINE_BUTTON = FIREKEY;
   }
-
-  return 0;
 }
 
 /*
