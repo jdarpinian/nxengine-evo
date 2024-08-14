@@ -62,12 +62,12 @@ bool input_init(void)
   mappings[RIGHTKEY].jbut = 15;
   mappings[UPKEY].jbut = 12;
   mappings[DOWNKEY].jbut = 13;
-  mappings[JUMPKEY].jbut = 0;
-  mappings[FIREKEY].jbut = 1;
-  mappings[STRAFEKEY].jbut = 5;
-  mappings[PREVWPNKEY].jbut = 1;
-  mappings[NEXTWPNKEY].jbut = 3;
-  mappings[INVENTORYKEY].jbut = 8;
+  mappings[JUMPKEY].jbut = 1;
+  mappings[FIREKEY].jbut = 3;
+  mappings[STRAFEKEY].jbut = 7;
+  mappings[PREVWPNKEY].jbut = 4;
+  mappings[NEXTWPNKEY].jbut = 5;
+  mappings[INVENTORYKEY].jbut = 2;
   mappings[MAPSYSTEMKEY].jbut = 9;
   mappings[ESCKEY].jbut = 16;
 
