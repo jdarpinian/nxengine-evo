@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-#define SAMPLE_RATE 44100
+#define SAMPLE_RATE 48000
 
 namespace NXE
 {
