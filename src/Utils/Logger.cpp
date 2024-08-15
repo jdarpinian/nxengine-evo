@@ -33,7 +33,7 @@ namespace Logger
 #if defined(DEBUG)
     spdlog::set_level(spdlog::level::trace);
 #else
-    spdlog::set_level(spdlog::level::info);
+    spdlog::set_level(spdlog::level::err);
 #endif
   }
 
