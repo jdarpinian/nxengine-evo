@@ -175,19 +175,19 @@ static inline void run_tick()
       update_fps();
     }
 
-    if (!flipacceltime)
-    {
+    // if (!flipacceltime)
+    // {
       Renderer::getInstance()->flip();
-    }
-    else
-    {
-      flipacceltime--;
-      if (--frameskip < 0)
-      {
-        Renderer::getInstance()->flip();
-        frameskip = 256;
-      }
-    }
+    // }
+    // else
+    // {
+    //   flipacceltime--;
+    //   if (--frameskip < 0)
+    //   {
+    //     Renderer::getInstance()->flip();
+    //     frameskip = 256;
+    //   }
+    // }
 
     memcpy(lastinputs, inputs, sizeof(lastinputs));
   }
@@ -402,6 +402,7 @@ int main(int argc, char *argv[])
     LOG_CRITICAL("ack, sdl_init failed: {}.", SDL_GetError());
     return 1;
   }
+  SDL_SetHint(SDL_HINT_EMSCRIPTEN_ASYNCIFY, "0");
 
   int flags = IMG_INIT_PNG;
   int initted = IMG_Init(flags);
