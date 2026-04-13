@@ -38,7 +38,7 @@ using namespace NXE::Utils;
 
 #include "miniz.h"
 
-#ifdef EMSCRIPTEN
+#ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 EM_ASYNC_JS(void, next_frame, (), {
   await new Promise(r => requestAnimationFrame(r));

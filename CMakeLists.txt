@@ -80,6 +80,7 @@ include_directories(${SDL2_INCLUDE_DIR})
 # include_directories(${SDL2_IMAGE_INCLUDE_DIR})
 # include_directories(${PNG_PNG_INCLUDE_DIR})
 include_directories("${nx_SOURCE_DIR}/deps")
+add_definitions(-DSPDLOG_HEADER_ONLY)
 
 file(GLOB APP_SOURCES "src/[a-zA-Z]*.cpp")
 file(GLOB TB_SOURCES "src/TextBox/[a-zA-Z]*.cpp")
